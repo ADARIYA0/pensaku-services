@@ -1,5 +1,5 @@
 services:
-  api:
+  service:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -9,5 +9,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./src:/app/src
+      - .:/app
       - /app/node_modules
