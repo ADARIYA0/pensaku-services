@@ -10,10 +10,6 @@ Mengingat proyek ini membutuhkan koneksi database langsung yang kuat, aman, dan 
 
 *Baca file markdown `AGENTS.md` terlebih dahulu secara menyeluruh, teliti, dan detail. Setelah itu, baca dan jalankan langkah-langkah di bawah ini secara teliti untuk membangun konektor database.*
 
-## PENTING
-
-Jangan lupa untuk selalu menggunakan pendekatan yang sesuai dengan `best-practice`.
-
 ### Langkah 1: Persiapan Dependencies (Prisma & Supabase)
 
 1. Pengecekan SDK & ORM: Proyek ini membutuhkan Prisma ORM dan SDK resmi Supabase. Jika `prisma` (sebagai devDependency), `@prisma/client`, dan `@supabase/supabase-js` belum ada di `package.json`, siapkan perintah instalasinya untuk saya.

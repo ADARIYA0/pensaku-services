@@ -26,3 +26,5 @@ Proyek ini adalah backend dari aplikasi **PENSaku** (Asisten Akademik Mahasiswa 
    - Autentikasi sepenuhnya wajib berbasis token via *header* `Authorization: Bearer` (React Native akan menyimpan token ini menggunakan AsyncStorage atau secure storage, jadi backend tidak boleh mengandalkan Cookie HttpOnly).
    - Pastikan *payload* response JSON seringkas mungkin dan buang properti database yang tidak dirender di UI React Native untuk menghemat transfer data perangkat *mobile*.
 7. **Type Safety & Error Handling:** Selalu definisikan tipe/interface di `types/`. Jangan gunakan `any`. Gunakan pola `try-catch` di *controller* dengan format JSON konsisten: `{ status: 'success' | 'error', message: '...', data: ... }`.
+8. JANGAN LUPA UNTUK SELALU MENGGUNAKAN PENDEKATAN `best-practice` DARI SEGI MANAPUN. JUGA UNTUK SELALU MENGGUNAKAN VERSI PALING TERBARU DARI PACKAGE, LIBRARY, DEPENDENCY, DSB..
+9. Dari tiap package, library, dependency, dsb., selalu untuk menggunakan pendekatan yang sesuai dengan dokumentasi resmi paling terbaru dari tiap package, library, dependency, dsb..
