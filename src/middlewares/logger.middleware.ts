@@ -10,7 +10,6 @@ export const httpLogger: HttpLogger = pinoHttp({
     if (res.statusCode >= 400) {
       return 'warn';
     }
-    // Lower log level for health checks so routine health probes don't pollute logs
     if (req.url === '/health') {
       return 'debug';
     }
