@@ -10,7 +10,9 @@ Proyek ini adalah backend dari aplikasi **PENSaku** (Asisten Akademik Mahasiswa 
 - Backend Framework: Express.js
 - Arsitektur API: **RESTful API**
 - Bahasa Backend: TypeScript (ESM / NodeNext)
-- Database & Auth: Supabase (PostgreSQL)
+- Database & Auth: Supabase (PostgreSQL via Prisma ORM & Supabase SDK)
+- Logging: **Pino** & **Pino-HTTP** (Structured JSON logging, dev pretty-print, auto data-redaction)
+- Keamanan & Pembatasan Request: **express-rate-limit** (Tiered rate limiting: global API limiter & strict auth/sync limiter)
 - Struktur Folder Backend (Monolith): Layer-based (`routes/`, `controllers/`, `services/`, `middlewares/`, `utils/`, `types/`)
 
 ## Aturan Ketat untuk AI (BACA SEBELUM MENULIS KODE)
@@ -21,10 +23,14 @@ Proyek ini adalah backend dari aplikasi **PENSaku** (Asisten Akademik Mahasiswa 
    - `controllers/`: Hanya menangani eksekusi *Request/Response* HTTP.
    - `services/`: Berisi logika bisnis inti (Scraping, manipulasi data).
    - `routes/`: Hanya untuk mendefinisikan *endpoint* API.
+   - `middlewares/`: Penanganan middleware (Autentikasi, Logging, Rate Limiting, Validasi request).
+   - `utils/`: Utilitas pembantu terpusat (Logger, Helper).
 5. **Standar RESTful & Modular Routing (PENTING):** Sistem ini wajib mematuhi standar RESTful API. **JANGAN PERNAH** menaruh kode definisi *endpoint* (logika bisnis HTTP) secara langsung di dalam file `app.ts` (kecuali untuk *route* global sederhana seperti `/health`). Semua *endpoint* harus dipecah berdasarkan fiturnya ke dalam folder `routes/` (misal: `routes/task.routes.ts`), lalu diimpor dan dipasang (*mounted*) di dalam `app.ts`.
 6. **Optimasi Khusus Klien React Native (Android):** 
    - Autentikasi sepenuhnya wajib berbasis token via *header* `Authorization: Bearer` (React Native akan menyimpan token ini menggunakan AsyncStorage atau secure storage, jadi backend tidak boleh mengandalkan Cookie HttpOnly).
    - Pastikan *payload* response JSON seringkas mungkin dan buang properti database yang tidak dirender di UI React Native untuk menghemat transfer data perangkat *mobile*.
 7. **Type Safety & Error Handling:** Selalu definisikan tipe/interface di `types/`. Jangan gunakan `any`. Gunakan pola `try-catch` di *controller* dengan format JSON konsisten: `{ status: 'success' | 'error', message: '...', data: ... }`.
-8. JANGAN LUPA UNTUK SELALU MENGGUNAKAN PENDEKATAN `best-practice` DARI SEGI MANAPUN. JUGA UNTUK SELALU MENGGUNAKAN VERSI PALING TERBARU DARI PACKAGE, LIBRARY, DEPENDENCY, DSB..
-9. Dari tiap package, library, dependency, dsb., selalu untuk menggunakan pendekatan yang sesuai dengan dokumentasi resmi paling terbaru dari tiap package, library, dependency, dsb..
+8. **Logging Terstruktur (Pino):** Selalu gunakan logger terpusat (`src/utils/logger.ts`) untuk mencatat proses penting, lifecycle, atau error di layer `services/` dan `controllers/`. **JANGAN PERNAH** menggunakan `console.log()` secara langsung. Pastikan data sensitif (password, secret, token) tidak dicatat ke dalam log.
+9. **Rate Limiting & Proteksi Endpoint:** Endpoint yang sensitif (seperti autentikasi login, verifikasi kredensial, dan pemicu *scraping*/sinkronisasi ke ETHOL kampus) **WAJIB** diproteksi dengan `authRateLimiter` dari `src/middlewares/rateLimiter.middleware.ts` untuk mencegah serangan *brute-force* dan melindungi IP server dari pemblokiran oleh server kampus.
+10. JANGAN LUPA UNTUK SELALU MENGGUNAKAN PENDEKATAN `best-practice` DARI SEGI MANAPUN. JUGA UNTUK SELALU MENGGUNAKAN VERSI PALING TERBARU DARI PACKAGE, LIBRARY, DEPENDENCY, DSB..
+11. Dari tiap package, library, dependency, dsb., selalu untuk menggunakan pendekatan yang sesuai dengan dokumentasi resmi paling terbaru dari tiap package, library, dependency, dsb..
