@@ -1,9 +1,13 @@
 import express, { type Express, type Request, type Response } from 'express';
 import httpLogger from './middlewares/logger.middleware.js';
+import { globalRateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 const app: Express = express();
 
+app.set('trust proxy', 1);
+
 app.use(httpLogger);
+app.use(globalRateLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
