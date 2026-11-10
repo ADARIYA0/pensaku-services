@@ -1,7 +1,9 @@
 import express, { type Express, type Request, type Response } from 'express';
+import httpLogger from './middlewares/logger.middleware.js';
 
 const app: Express = express();
 
+app.use(httpLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

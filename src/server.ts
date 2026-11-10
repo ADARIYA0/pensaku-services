@@ -1,16 +1,17 @@
 import app from './app.js';
+import logger from './utils/logger.js';
 
 const PORT = process.env.PORT || 3000;
 const ENV = process.env.NODE_ENV || 'development';
 
 const server = app.listen(PORT, () => {
-    console.log(`[Server]: PENSaku API is running at http://localhost:${PORT} in ${ENV} mode`);
+    logger.info(`PENSaku API is running at http://localhost:${PORT} in ${ENV} mode`);
 });
 
 const gracefulShutdown = () => {
-    console.log('\n[Server]: Shutting down gracefully...');
+    logger.info('Shutting down gracefully...');
     server.close(() => {
-        console.log('[Server]: Closed out remaining connections.');
+        logger.info('Closed out remaining connections.');
         process.exit(0);
     });
 };
