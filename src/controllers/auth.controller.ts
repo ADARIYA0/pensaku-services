@@ -21,13 +21,12 @@ export async function register(req: Request, res: Response): Promise<void> {
       email,
       password,
       kataSandi,
-      agreeTerms = true,
     } = req.body as RegisterRequestBody;
 
     const chosenName = (name || namaLengkap)!.trim();
     const chosenPassword = (password || kataSandi)!;
 
-    const result = await registerUser(chosenName, email, chosenPassword, agreeTerms);
+    const result = await registerUser(chosenName, email, chosenPassword);
 
     res.status(201).json({
       status: 'success',

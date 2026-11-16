@@ -73,8 +73,7 @@ export async function createRefreshToken(
 export async function registerUser(
   name: string,
   email: string,
-  password: string,
-  agreeTerms: boolean = true
+  password: string
 ): Promise<AuthResponseData> {
   const normalizedEmail = email.trim().toLowerCase();
 
@@ -94,7 +93,6 @@ export async function registerUser(
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
-      agreeTerms,
     },
   });
 

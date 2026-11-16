@@ -6,7 +6,6 @@ export interface RegisterRequestBody {
   kataSandi?: string;
   confirmPassword?: string;
   konfirmasiKataSandi?: string;
-  agreeTerms?: boolean;
 }
 
 export interface LoginRequestBody {

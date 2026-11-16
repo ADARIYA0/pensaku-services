@@ -40,7 +40,6 @@ export const registerSchema = {
       ),
       confirmPassword: v.optional(v.string()),
       konfirmasiKataSandi: v.optional(v.string()),
-      agreeTerms: v.optional(v.boolean()),
     }),
     v.check(
       (data) => Boolean(data.name || data.namaLengkap),
@@ -53,10 +52,6 @@ export const registerSchema = {
     v.check(
       (data) => (data.password || data.kataSandi) === (data.confirmPassword || data.konfirmasiKataSandi),
       'Password confirmation does not match password.'
-    ),
-    v.check(
-      (data) => data.agreeTerms !== false,
-      'You must agree to the Terms of Service and Privacy Policy.'
     )
   ),
 };

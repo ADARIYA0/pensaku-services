@@ -23,4 +23,5 @@ dist/
 .DS_Store
 Thumbs.db
 misc/
+instructions/API_DOCUMENTATION.md
 MyFirstApp
