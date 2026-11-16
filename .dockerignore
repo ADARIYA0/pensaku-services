@@ -31,3 +31,5 @@ docker-compose.yml
 .DS_Store
 Thumbs.db
 README.md
+MyFirstApp/
+misc/

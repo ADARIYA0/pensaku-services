@@ -2,6 +2,7 @@ import express, { type Express, type Request, type Response } from 'express';
 import httpLogger from './middlewares/logger.middleware.js';
 import { globalRateLimiter } from './middlewares/rateLimiter.middleware.js';
 import etholRouter from './routes/ethol.routes.js';
+import authRouter from './routes/auth.routes.js';
 
 const app: Express = express();
 
@@ -36,6 +37,7 @@ app.get('/health', (req: Request, res: Response) => {
     });
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/ethol', etholRouter);
 
 app.use((req: Request, res: Response) => {

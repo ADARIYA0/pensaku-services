@@ -6,6 +6,33 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  name            String
+  passwordHash    String
+  agreeTerms      Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  refreshTokens   UserRefreshToken[]
+  etholCredentials EtholCredential[]
+
+  @@map("users")
+}
+
+model UserRefreshToken {
+  id          String   @id @default(uuid())
+  tokenHash   String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@map("user_refresh_tokens")
+}
+
 model EtholCredential {
   id                      String   @id @default(uuid())
   etholNrp                String   @unique
@@ -19,8 +46,12 @@ model EtholCredential {
   linkedAt                DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
+  userId                  String?
+  user                    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   courses                 Course[]
 
+  @@index([userId])
   @@index([etholEmail])
   @@map("ethol_credentials")
 }
