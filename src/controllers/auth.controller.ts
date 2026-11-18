@@ -5,12 +5,14 @@ import {
   refreshUserTokens,
   logoutUser,
   getUserById,
+  updateUserProfile,
 } from '../services/auth.service.js';
 import logger from '../utils/logger.js';
 import type {
   RegisterRequestBody,
   LoginRequestBody,
   RefreshTokenRequestBody,
+  UpdateProfileRequestBody,
 } from '../types/auth.types.js';
 
 export async function register(req: Request, res: Response): Promise<void> {
@@ -39,11 +41,18 @@ export async function register(req: Request, res: Response): Promise<void> {
 
     logger.error({ err: error }, 'Registration controller error');
 
-    const statusCode = message.includes('already exists') ? 409 : 400;
+    if (message.includes('already exists')) {
+      res.status(409).json({
+        status: 'error',
+        message: 'An account with this email address already exists.',
+        data: null,
+      });
+      return;
+    }
 
-    res.status(statusCode).json({
+    res.status(500).json({
       status: 'error',
-      message,
+      message: 'Unable to complete registration. Please check your connection or try again later.',
       data: null,
     });
   }
@@ -73,11 +82,18 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     logger.error({ err: error }, 'Login controller error');
 
-    const statusCode = message.includes('Invalid email or password') ? 401 : 400;
+    if (message.includes('Invalid email or password')) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Invalid email or password.',
+        data: null,
+      });
+      return;
+    }
 
-    res.status(statusCode).json({
+    res.status(500).json({
       status: 'error',
-      message,
+      message: 'Unable to connect to service. Please check your network connection or try again later.',
       data: null,
     });
   }
@@ -165,6 +181,50 @@ export async function getMe(req: Request, res: Response): Promise<void> {
     res.status(500).json({
       status: 'error',
       message: 'An error occurred while retrieving user profile.',
+      data: null,
+    });
+  }
+}
+
+export async function updateProfile(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({
+        status: 'error',
+        message: 'Unauthorized',
+        data: null,
+      });
+      return;
+    }
+
+    const { name, email, prodi } = req.body as UpdateProfileRequestBody;
+
+    const updatedUser = await updateUserProfile(userId, { name, email, prodi });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Profile updated successfully.',
+      data: updatedUser,
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'An error occurred while updating profile.';
+
+    logger.error({ err: error }, 'Update profile controller error');
+
+    if (message.includes('already exists')) {
+      res.status(409).json({
+        status: 'error',
+        message: 'An account with this email address already exists.',
+        data: null,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Unable to update profile. Please try again later.',
       data: null,
     });
   }

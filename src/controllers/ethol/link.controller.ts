@@ -44,12 +44,21 @@ export async function linkAccount(req: Request, res: Response): Promise<void> {
     const encryptedData = encrypt(casResult.refreshToken);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE_MS);
 
+    const pensakuEmail = (req.body as any).userEmail || (req as any).user?.email;
+    const matchedUser = pensakuEmail
+      ? await prisma.user.findFirst({
+          where: { email: (pensakuEmail as string).trim().toLowerCase() },
+          select: { id: true },
+        })
+      : null;
+
     await prisma.etholCredential.upsert({
       where: { etholNrp: casResult.nipnrp },
       update: {
         etholEmail: userEmail,
         etholNama: casResult.nama,
         etholNomor: casResult.nomor,
+        userId: matchedUser?.id ?? undefined,
         encryptedRefreshToken: encryptedData.encrypted,
         refreshTokenIv: encryptedData.iv,
         refreshTokenTag: encryptedData.tag,
@@ -60,6 +69,7 @@ export async function linkAccount(req: Request, res: Response): Promise<void> {
         etholEmail: userEmail,
         etholNama: casResult.nama,
         etholNomor: casResult.nomor,
+        userId: matchedUser?.id ?? undefined,
         encryptedRefreshToken: encryptedData.encrypted,
         refreshTokenIv: encryptedData.iv,
         refreshTokenTag: encryptedData.tag,

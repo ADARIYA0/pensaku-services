@@ -262,6 +262,7 @@ export async function getAccessTokenForStudent(
         OR: [
           { etholNrp: identifier },
           { etholEmail: identifier },
+          { user: { email: identifier } },
         ],
       },
       select: { id: true, etholNrp: true, etholEmail: true, refreshTokenExpiresAt: true },
@@ -292,6 +293,7 @@ export async function getAccessTokenForStudent(
       OR: [
         { etholNrp: identifier },
         { etholEmail: identifier },
+        { user: { email: identifier } },
       ],
     },
   });

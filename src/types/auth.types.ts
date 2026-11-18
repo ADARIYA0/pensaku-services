@@ -30,12 +30,19 @@ export interface UserResponse {
   id: string;
   name: string;
   email: string;
+  prodi: string | null;
   createdAt: string;
 }
 
 export interface AuthResponseData {
   user: UserResponse;
   tokens: AuthTokens;
+}
+
+export interface UpdateProfileRequestBody {
+  name?: string;
+  email?: string;
+  prodi?: string;
 }
 
 export interface JwtTokenPayload {

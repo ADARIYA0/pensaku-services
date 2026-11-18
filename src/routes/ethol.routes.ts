@@ -17,6 +17,9 @@ import {
   getConfig,
   getValidasiToken,
   getCourses,
+  getTodaySchedule,
+  getAssignmentsSummary,
+  getAllAssignments,
 } from '../controllers/ethol/index.js';
 
 const router = Router();
@@ -27,6 +30,10 @@ router.post('/sync', authRateLimiter, validate(syncDataSchema), syncData);
 router.get('/config', validate(studentQuerySchema), getConfig);
 router.get('/validate-token', validate(studentQuerySchema), getValidasiToken);
 router.get('/courses', validate(coursesQuerySchema), getCourses);
+router.get('/courses/today', validate(studentQuerySchema), getTodaySchedule);
+router.get('/schedule/today', validate(studentQuerySchema), getTodaySchedule);
+router.get('/assignments/summary', validate(studentQuerySchema), getAssignmentsSummary);
+router.get('/assignments', validate(studentQuerySchema), getAllAssignments);
 router.get('/attendance', validate(attendanceQuerySchema), checkAttendance);
 
 export default router;

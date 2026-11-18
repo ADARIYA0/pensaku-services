@@ -4,22 +4,53 @@ import { getAccessTokenForStudent, fetchEtholConfig } from '../../services/ethol
 import { fetchCourses, fetchActiveAttendance } from '../../services/etholSync.service.js';
 import logger from '../../utils/logger.js';
 
+interface AttendanceCacheEntry {
+  timestamp: number;
+  data: {
+    hasActiveAttendance: boolean;
+    activeSessions: unknown[];
+  };
+}
+
+const attendanceCache = new Map<string, AttendanceCacheEntry>();
+const ATTENDANCE_CACHE_TTL_MS = 60 * 1000;
+
 export async function checkAttendance(req: Request, res: Response): Promise<void> {
   try {
     const identifier = ((req.query.email || req.query.nrp) as string).trim();
     const reqCourseId = req.query.courseId ? Number(req.query.courseId) : undefined;
+    const isRefresh = req.query.refresh === 'true';
+    const cacheKey = `${identifier}_${reqCourseId || 'all'}`;
+
+    if (!isRefresh) {
+      const cached = attendanceCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < ATTENDANCE_CACHE_TTL_MS) {
+        logger.debug({ identifier, reqCourseId }, 'Returning cached attendance result');
+        res.status(200).json({
+          status: 'success',
+          message: cached.data.hasActiveAttendance
+            ? `${cached.data.activeSessions.length} active attendance session(s) found (cached).`
+            : 'No active attendance session currently open (cached).',
+          data: cached.data,
+        });
+        return;
+      }
+    }
 
     const { accessToken, credentialId } = await getAccessTokenForStudent(identifier);
 
     if (reqCourseId && !isNaN(reqCourseId)) {
       const attendance = await fetchActiveAttendance(accessToken, reqCourseId);
+      const data = {
+        hasActiveAttendance: attendance !== null,
+        activeSessions: attendance ? [{ courseId: reqCourseId, attendance }] : [],
+      };
+      attendanceCache.set(cacheKey, { timestamp: Date.now(), data });
+
       res.status(200).json({
         status: 'success',
         message: attendance ? 'Active attendance session found.' : 'No active attendance session.',
-        data: {
-          hasActiveAttendance: attendance !== null,
-          activeSessions: attendance ? [{ courseId: reqCourseId, attendance }] : [],
-        },
+        data,
       });
       return;
     }
@@ -60,6 +91,12 @@ export async function checkAttendance(req: Request, res: Response): Promise<void
     );
 
     const activeSessions = attendanceChecks.filter((c) => c.attendance !== null);
+    const data = {
+      hasActiveAttendance: activeSessions.length > 0,
+      activeSessions,
+    };
+
+    attendanceCache.set(cacheKey, { timestamp: Date.now(), data });
 
     res.status(200).json({
       status: 'success',
@@ -67,10 +104,7 @@ export async function checkAttendance(req: Request, res: Response): Promise<void
         activeSessions.length > 0
           ? `${activeSessions.length} active attendance session(s) found.`
           : 'No active attendance session currently open.',
-      data: {
-        hasActiveAttendance: activeSessions.length > 0,
-        activeSessions,
-      },
+      data,
     });
   } catch (error) {
     const message =

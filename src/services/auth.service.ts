@@ -112,6 +112,7 @@ export async function registerUser(
     id: user.id,
     name: user.name,
     email: user.email,
+    prodi: user.prodi,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -159,6 +160,7 @@ export async function loginUser(
     id: user.id,
     name: user.name,
     email: user.email,
+    prodi: user.prodi,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -217,6 +219,61 @@ export async function logoutUser(rawRefreshToken: string): Promise<void> {
   logger.info('User refresh token revoked successfully upon logout');
 }
 
+export async function updateUserProfile(
+  userId: string,
+  data: { name?: string; email?: string; prodi?: string }
+): Promise<UserResponse> {
+  const updatePayload: { name?: string; email?: string; prodi?: string } = {};
+
+  if (data.name) {
+    updatePayload.name = data.name.trim();
+  }
+
+  if (data.prodi !== undefined) {
+    updatePayload.prodi = data.prodi.trim() || null as unknown as string;
+  }
+
+  if (data.email) {
+    const normalizedEmail = data.email.trim().toLowerCase();
+    const existingUser = await prisma.user.findFirst({
+      where: { email: normalizedEmail, NOT: { id: userId } },
+    });
+
+    if (existingUser) {
+      logger.warn({ email: normalizedEmail, userId }, 'Profile update failed: Email already in use');
+      throw new Error('An account with this email address already exists.');
+    }
+
+    updatePayload.email = normalizedEmail;
+  }
+
+  if (Object.keys(updatePayload).length === 0) {
+    throw new Error('No valid fields provided for update.');
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: updatePayload,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      prodi: true,
+      createdAt: true,
+    },
+  });
+
+  logger.info({ userId, fields: Object.keys(updatePayload) }, 'User profile updated successfully');
+
+  return {
+    id: updatedUser.id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    prodi: updatedUser.prodi,
+    createdAt: updatedUser.createdAt.toISOString(),
+  };
+}
+
 export async function getUserById(userId: string): Promise<UserResponse | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -224,6 +281,7 @@ export async function getUserById(userId: string): Promise<UserResponse | null> 
       id: true,
       name: true,
       email: true,
+      prodi: true,
       createdAt: true,
     },
   });
@@ -234,6 +292,7 @@ export async function getUserById(userId: string): Promise<UserResponse | null> 
     id: user.id,
     name: user.name,
     email: user.email,
+    prodi: user.prodi,
     createdAt: user.createdAt.toISOString(),
   };
 }

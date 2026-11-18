@@ -53,4 +53,29 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   }
 }
 
+export function flexibleAuthenticate(req: Request, res: Response, next: NextFunction): void {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    next();
+    return;
+  }
+
+  const [scheme, token] = authHeader.split(' ');
+  if (scheme !== 'Bearer' || !token) {
+    next();
+    return;
+  }
+
+  try {
+    const payload = verifyAccessToken(token);
+    req.user = {
+      userId: payload.sub,
+      email: payload.email,
+    };
+    next();
+  } catch {
+    next();
+  }
+}
+
 export default authenticateToken;

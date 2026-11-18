@@ -22,6 +22,7 @@ export const linkAccountSchema = {
         v.minLength(1, 'Password cannot be empty.'),
         v.maxLength(128, 'Password cannot exceed 128 characters.')
       ),
+      userEmail: v.optional(v.pipe(v.string(), v.trim())),
     }),
     v.check(
       (data) => Boolean(data.email || data.nrp),
@@ -63,6 +64,7 @@ export const studentQuerySchema = {
     v.object({
       email: v.optional(v.pipe(v.string(), v.trim())),
       nrp: v.optional(v.pipe(v.string(), v.trim())),
+      refresh: v.optional(v.pipe(v.string(), v.trim())),
     }),
     v.check(
       (data) => Boolean(data.email || data.nrp),
@@ -78,6 +80,7 @@ export const coursesQuerySchema = {
     v.object({
       email: v.optional(v.pipe(v.string(), v.trim())),
       nrp: v.optional(v.pipe(v.string(), v.trim())),
+      refresh: v.optional(v.pipe(v.string(), v.trim())),
       tahun: v.optional(
         v.pipe(v.string(), v.regex(/^\d{4}$/, 'Tahun must be a 4-digit year.'), v.transform(Number))
       ),
@@ -97,6 +100,7 @@ export const attendanceQuerySchema = {
     v.object({
       email: v.optional(v.pipe(v.string(), v.trim())),
       nrp: v.optional(v.pipe(v.string(), v.trim())),
+      refresh: v.optional(v.pipe(v.string(), v.trim())),
       courseId: v.optional(
         v.pipe(v.string(), v.regex(/^\d+$/, 'courseId must be a numeric ID.'), v.transform(Number))
       ),

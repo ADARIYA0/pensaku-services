@@ -22,6 +22,7 @@ dist/
 # Misc
 .DS_Store
 Thumbs.db
-misc/
+misc
 instructions/API_DOCUMENTATION.md
+instructions/MOBILE_APP.md
 MyFirstApp

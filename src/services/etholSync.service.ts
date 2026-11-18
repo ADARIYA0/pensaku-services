@@ -116,6 +116,47 @@ export function filterPendingAssignments(
   return assignments.filter((a) => a.submission_time === null || a.submission_time === undefined);
 }
 
+export async function fetchCourseAssignments(
+  accessToken: string,
+  courseId: number,
+  jenisSchema: number = 4
+): Promise<EtholAssignmentItem[]> {
+  const client = createEtholApiClient(accessToken);
+
+  try {
+    const response = await client.get<EtholAssignmentItem[]>('/api/tugas', {
+      params: { kuliah: courseId, jenisSchema },
+    });
+
+    if (response.status === 401) {
+      throw new Error('ETHOL access token expired during course assignment fetch');
+    }
+
+    return response.data || [];
+  } catch (error) {
+    logger.warn({ courseId, err: error }, 'Failed to fetch assignments for specific course');
+    return [];
+  }
+}
+
+export async function fetchAllCoursesAssignments(
+  accessToken: string,
+  courses: EtholCourseItem[]
+): Promise<{ course: EtholCourseItem; assignments: EtholAssignmentItem[] }[]> {
+  const results = await Promise.all(
+    courses.map(async (c) => {
+      const assignments = await fetchCourseAssignments(
+        accessToken,
+        c.nomor,
+        c.jenisSchema || 4
+      );
+      return { course: c, assignments };
+    })
+  );
+
+  return results;
+}
+
 export async function fetchActiveAttendance(
   accessToken: string,
   courseId: number

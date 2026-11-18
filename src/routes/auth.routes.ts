@@ -6,6 +6,7 @@ import {
   registerSchema,
   loginSchema,
   refreshTokenSchema,
+  updateProfileSchema,
 } from '../schemas/auth.schema.js';
 import {
   register,
@@ -13,6 +14,7 @@ import {
   refresh,
   logout,
   getMe,
+  updateProfile,
 } from '../controllers/auth.controller.js';
 
 const router = Router();
@@ -22,5 +24,6 @@ router.post('/login', authRateLimiter, validate(loginSchema), login);
 router.post('/refresh', validate(refreshTokenSchema), refresh);
 router.post('/logout', logout);
 router.get('/me', authenticateToken, getMe);
+router.patch('/profile', authenticateToken, validate(updateProfileSchema), updateProfile);
 
 export default router;

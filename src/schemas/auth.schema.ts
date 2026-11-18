@@ -85,6 +85,33 @@ export const loginSchema = {
   ),
 };
 
+export const updateProfileSchema = {
+  body: v.object({
+    name: v.optional(
+      v.pipe(
+        v.string('Name must be a string.'),
+        v.trim(),
+        v.minLength(2, 'Name must be at least 2 characters long.'),
+        v.maxLength(100, 'Name cannot exceed 100 characters.')
+      )
+    ),
+    email: v.optional(
+      v.pipe(
+        v.string('Email must be a string.'),
+        v.trim(),
+        v.email('Please provide a valid email address.')
+      )
+    ),
+    prodi: v.optional(
+      v.pipe(
+        v.string('Program studi must be a string.'),
+        v.trim(),
+        v.maxLength(100, 'Program studi cannot exceed 100 characters.')
+      )
+    ),
+  }),
+};
+
 export const refreshTokenSchema = {
   body: v.object({
     refreshToken: v.pipe(
